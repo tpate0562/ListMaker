@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Apple Spice Inventory List Manager</title>
+    <!-- Modern typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- SVG Icons via Phosphor Icons for a clean, premium look -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="background-animation"></div>
+
+    <div class="container">
+        <header class="glass-panel">
+            <div class="header-content">
+                <div class="logo">
+                    <i class="ph-fill ph-google-logo"></i>
+                    <h1>Apple Spice Inventory List Manager</h1>
+                </div>
+            </div>
+        </header>
+
+        <main class="lists-container">
+            <!-- Available Items Column -->
+            <section class="list-panel glass-panel">
+                <div class="panel-header">
+                    <h2><i class="ph ph-list-bullets"></i> Available</h2>
+                    <span class="count-badge" id="availableCount">0</span>
+                </div>
+                
+                <div class="search-box">
+                    <i class="ph ph-magnifying-glass"></i>
+                    <input type="text" id="searchInput" placeholder="Search available items...">
+                </div>
+                
+                <div class="list-wrapper" id="availableListWrapper">
+                    <ul id="availableList" class="item-list">
+                        <li class="empty-state">No items available. Add one below</li>
+                    </ul>
+                </div>
+                
+                <div class="add-item-control">
+                    <input type="text" id="newItemInput" placeholder="Add custom item..." aria-label="Add custom item">
+                    <button id="addItemBtn" class="primary-btn sm-btn">
+                        <i class="ph ph-plus"></i>
+                    </button>
+                </div>
+            </section>
+
+            <!-- Mobile Direction Icon -->
+            <div class="exchange-icon">
+                <i class="ph ph-arrows-left-right"></i>
+            </div>
+
+            <!-- Selected Items Column -->
+            <section class="list-panel glass-panel highlighted">
+                <div class="panel-header">
+                    <h2><i class="ph ph-check-circle"></i> Items Needed</h2>
+                    <span class="count-badge primary" id="selectedCount">0</span>
+                </div>
+                
+                <div class="list-wrapper" id="selectedListWrapper">
+                    <ul id="selectedList" class="item-list">
+                        <li class="empty-state">No items selected yet.</li>
+                    </ul>
+                </div>
+                
+                <div class="sync-control">
+                    <button id="syncBtn" class="glow-btn">
+                        <i class="ph ph-arrows-clockwise"></i> Sync to Sheet
+                    </button>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast hidden">
+        <i class="ph ph-info"></i>
+        <span id="toastMessage">Notification</span>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
