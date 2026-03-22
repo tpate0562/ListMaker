@@ -423,7 +423,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
                 if (isAutoFetch) document.body.classList.add('no-animate');
                 renderLists();
-                if (isAutoFetch) document.body.classList.remove('no-animate');
+                if (isAutoFetch) {
+                    requestAnimationFrame(() => {
+                        requestAnimationFrame(() => {
+                            document.body.classList.remove('no-animate');
+                        });
+                    });
+                }
 
                 if (!isAutoFetch) {
                     showToast('Data loaded from sheet!', 'success');
