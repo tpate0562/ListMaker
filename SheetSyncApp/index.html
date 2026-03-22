@@ -10,52 +10,70 @@
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <!-- SVG Icons via Phosphor Icons for a clean, premium look -->
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="styles.css?v=2">
 </head>
 <body>
     <div class="background-animation"></div>
 
     <div class="container">
         <header class="glass-panel">
-            <div class="header-content">
+            <div class="header-content" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
                 <div class="logo">
                     <i class="ph-fill ph-google-logo"></i>
-                    <h1>Apple Spice Inventory List Manager</h1>
+                    <h1>ASILM</h1>
                 </div>
+                <a href="static.html" style="color: var(--text-secondary); text-decoration: none; font-weight: 500; font-size: 0.9rem; padding: 0.5rem 1rem; border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; transition: var(--transition);" onmouseover="this.style.background='rgba(255,255,255,0.1)'; this.style.color='var(--primary-light)';" onmouseout="this.style.background='transparent'; this.style.color='var(--text-secondary)';">View as static list</a>
             </div>
         </header>
 
         <main class="lists-container">
-            <!-- Available Items Column -->
+            <!-- Inventory Items Column -->
             <section class="list-panel glass-panel">
                 <div class="panel-header">
-                    <h2><i class="ph ph-list-bullets"></i> Available</h2>
+                    <h2><i class="ph ph-package"></i> Grab and Go Inventory</h2>
+                    <span class="count-badge" id="inventoryCount">0</span>
+                </div>
+                
+                <div class="search-box">
+                    <i class="ph ph-magnifying-glass"></i>
+                    <input type="text" id="searchInput" placeholder="Search inventory...">
+                </div>
+                
+                <div class="list-wrapper" id="inventoryListWrapper">
+                    <ul id="inventoryList" class="item-list">
+                        <li class="empty-state">No items available. Add one below</li>
+                    </ul>
+                </div>
+                
+                <div class="add-item-container">
+                    <input type="text" id="newItemInput" placeholder="Add custom item...">
+                    <button id="addItemBtn" class="primary-btn"><i class="ph ph-plus"></i> Add</button>
+                </div>
+            </section>
+
+            <!-- All Items Column -->
+            <section class="list-panel glass-panel">
+                <div class="panel-header">
+                    <h2><i class="ph ph-list-bullets"></i> What We Have</h2>
                     <span class="count-badge" id="availableCount">0</span>
                 </div>
                 
                 <div class="search-box">
                     <i class="ph ph-magnifying-glass"></i>
-                    <input type="text" id="searchInput" placeholder="Search available items...">
+                    <input type="text" id="availableSearchInput" placeholder="Search all items...">
                 </div>
                 
                 <div class="list-wrapper" id="availableListWrapper">
                     <ul id="availableList" class="item-list">
-                        <li class="empty-state">No items available. Add one below</li>
+                        <li class="empty-state">No items available. Add one to inventory to see it here!</li>
                     </ul>
                 </div>
-                
-                <div class="add-item-control">
-                    <input type="text" id="newItemInput" placeholder="Add custom item..." aria-label="Add custom item">
-                    <button id="addItemBtn" class="primary-btn sm-btn">
-                        <i class="ph ph-plus"></i>
-                    </button>
+
+                <div class="add-item-container">
+                    <input type="text" id="newAvailableItemInput" placeholder="Add custom item...">
+                    <button id="addAvailableItemBtn" class="primary-btn"><i class="ph ph-plus"></i> Add</button>
                 </div>
             </section>
-
-            <!-- Mobile Direction Icon -->
-            <div class="exchange-icon">
-                <i class="ph ph-arrows-left-right"></i>
-            </div>
 
             <!-- Selected Items Column -->
             <section class="list-panel glass-panel highlighted">
@@ -64,19 +82,32 @@
                     <span class="count-badge primary" id="selectedCount">0</span>
                 </div>
                 
+                <div class="search-box">
+                    <i class="ph ph-magnifying-glass"></i>
+                    <input type="text" id="neededSearchInput" placeholder="Search needed items...">
+                </div>
+                
                 <div class="list-wrapper" id="selectedListWrapper">
                     <ul id="selectedList" class="item-list">
                         <li class="empty-state">No items selected yet.</li>
                     </ul>
                 </div>
                 
-                <div class="sync-control">
-                    <button id="syncBtn" class="glow-btn">
-                        <i class="ph ph-arrows-clockwise"></i> Sync to Sheet
-                    </button>
-                </div>
+
             </section>
         </main>
+    </div>
+
+    <!-- Custom Async Prompt Modal -->
+    <div id="customPromptModal" class="modal-overlay hidden">
+        <div class="modal-content glass-panel">
+            <h3 id="customPromptMessage">Enter PIN</h3>
+            <input type="text" inputmode="numeric" pattern="[0-9]*" id="customPromptInput" class="custom-prompt-input" autocomplete="off">
+            <div class="modal-actions">
+                <button id="customPromptCancel" class="btn-cancel">Cancel</button>
+                <button id="customPromptSubmit" class="btn-submit">Submit</button>
+            </div>
+        </div>
     </div>
 
     <!-- Toast Notification -->
@@ -85,6 +116,6 @@
         <span id="toastMessage">Notification</span>
     </div>
 
-    <script src="app.js"></script>
+    <script src="app.js?v=2"></script>
 </body>
 </html>

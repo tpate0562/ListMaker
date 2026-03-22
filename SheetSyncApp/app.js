@@ -1,22 +1,34 @@
 document.addEventListener('DOMContentLoaded', () => {
     // --- DOM Elements ---
-    const availableList = document.getElementById('availableList');
+    const inventoryList = document.getElementById('inventoryList');
+    const allList = document.getElementById('availableList'); // Kept ID same in HTML for simplicity right now
     const selectedList = document.getElementById('selectedList');
-    const availableCount = document.getElementById('availableCount');
+    const inventoryCount = document.getElementById('inventoryCount');
+    const allCount = document.getElementById('availableCount');
     const selectedCount = document.getElementById('selectedCount');
 
     const newItemInput = document.getElementById('newItemInput');
     const addItemBtn = document.getElementById('addItemBtn');
-    const syncBtn = document.getElementById('syncBtn');
+    const newAllItemInput = document.getElementById('newAvailableItemInput');
+    const addAllItemBtn = document.getElementById('addAvailableItemBtn');
+
+
     const searchInput = document.getElementById('searchInput');
+    const allSearchInput = document.getElementById('availableSearchInput');
+    const neededSearchInput = document.getElementById('neededSearchInput');
     const toast = document.getElementById('toast');
     const toastMessage = document.getElementById('toastMessage');
 
     // --- State ---
     let state = {
-        available: [],
-        selected: [],
-        searchQuery: ""
+        available: [], // Array of global item names (strings) - keep internal logic 'available'
+        inventory: [], // Array of objects matching global indices: [{name: "Apples", qty: 0}, ...]
+        selected: [],  // Array of needed items: [{name: "Apples", qty: 1}, ...]
+        searchQuery: {
+            inventory: "",
+            all: "",
+            needed: ""
+        }
     };
     const scriptUrl = 'https://script.google.com/macros/s/AKfycbyg1ywdChhD_wR1UwCA-9Fbl3l8VjjUqXpSwXw-RGR61bamZopIe4GieRqelOk4fSkl/exec';
 
@@ -24,113 +36,325 @@ document.addEventListener('DOMContentLoaded', () => {
     fetchFromSheet(false);
     renderLists();
 
-    // Start auto-sync every 10 seconds (Push only)
+    // Auto-pull from sheet every 5 seconds to stay in sync
     setInterval(() => {
-        syncToSheet(true);
-    }, 10000);
+        fetchFromSheet(true);
+    }, 5000);
 
     // --- Event Listeners ---
 
-    // Add new item
-    const handleAddItem = () => {
-        const val = newItemInput.value.trim();
-        if (val) {
-            state.available.push(val);
-            newItemInput.value = '';
-            renderLists();
+    // Custom Async Prompt (replaces window.prompt)
+    const customPromptModal = document.getElementById('customPromptModal');
+    const customPromptMessage = document.getElementById('customPromptMessage');
+    const customPromptInput = document.getElementById('customPromptInput');
+    const customPromptCancel = document.getElementById('customPromptCancel');
+    const customPromptSubmit = document.getElementById('customPromptSubmit');
+
+    function showCustomPrompt(message, defaultValue = '') {
+        return new Promise((resolve) => {
+            customPromptMessage.textContent = message;
+            customPromptInput.value = defaultValue;
+            customPromptModal.classList.remove('hidden');
+            customPromptModal.classList.add('active');
+            customPromptInput.focus();
+
+            const cleanup = () => {
+                customPromptModal.classList.remove('active');
+                setTimeout(() => customPromptModal.classList.add('hidden'), 300); // Wait for transition
+                customPromptSubmit.removeEventListener('click', handleSubmit);
+                customPromptCancel.removeEventListener('click', handleCancel);
+                customPromptInput.removeEventListener('keypress', handleEnter);
+            };
+
+            const handleSubmit = () => {
+                cleanup();
+                resolve(customPromptInput.value);
+            };
+
+            const handleCancel = () => {
+                cleanup();
+                resolve(null);
+            };
+
+            const handleEnter = (e) => {
+                if (e.key === 'Enter') handleSubmit();
+            };
+
+            customPromptSubmit.addEventListener('click', handleSubmit);
+            customPromptCancel.addEventListener('click', handleCancel);
+            customPromptInput.addEventListener('keypress', handleEnter);
+        });
+    }
+
+    // Add to Inventory
+    const handleAddInventoryItem = async (inputElem) => {
+        const val = inputElem.value.trim();
+        if (val && !state.inventory.some(i => i.name === val)) {
+            const pin = await showCustomPrompt('Enter PIN to add custom item:');
+            if (pin !== '949521' && pin !== '928461') {
+                showToast('Incorrect PIN', 'error');
+                return;
+            }
+            state.inventory.push({ name: val, qty: 0 });
+            inputElem.value = '';
+            renderLists(['inventory']);
+            syncToSheet(true);
+        } else if (state.inventory.some(i => i.name === val)) {
+            showToast('Item already in inventory!', 'error');
         }
     };
-    addItemBtn.addEventListener('click', handleAddItem);
+
+    // Add to All Items
+    const handleAddAllItem = async (inputElem) => {
+        const val = inputElem.value.trim();
+        if (val && !state.available.includes(val)) {
+            const pin = await showCustomPrompt('Enter PIN to add custom item:');
+            if (pin !== '949521' && pin !== '928461') {
+                showToast('Incorrect PIN', 'error');
+                return;
+            }
+            state.available.push(val);
+            inputElem.value = '';
+            renderLists(['available']);
+            syncToSheet(true);
+        } else if (state.available.includes(val)) {
+            showToast('Item already exists in All Items!', 'error');
+        }
+    };
+
+    // Inventory column add events
+    addItemBtn.addEventListener('click', () => handleAddInventoryItem(newItemInput));
     newItemInput.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') handleAddItem();
+        if (e.key === 'Enter') handleAddInventoryItem(newItemInput);
     });
 
-    // Search input
+    // All Items column add events
+    if (addAllItemBtn && newAllItemInput) {
+        addAllItemBtn.addEventListener('click', () => handleAddAllItem(newAllItemInput));
+        newAllItemInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') handleAddAllItem(newAllItemInput);
+        });
+    }
+
+    // Search input (Inventory)
     searchInput.addEventListener('input', (e) => {
-        state.searchQuery = e.target.value.toLowerCase();
-        renderLists();
+        state.searchQuery.inventory = e.target.value.toLowerCase();
+        renderLists(['inventory']);
     });
 
-    // Search input
-    searchInput.addEventListener('input', (e) => {
-        state.searchQuery = e.target.value.toLowerCase();
-        renderLists();
+    // Search input (All Items)
+    allSearchInput.addEventListener('input', (e) => {
+        state.searchQuery.all = e.target.value.toLowerCase();
+        renderLists(['available']);
     });
 
-    syncBtn.addEventListener('click', () => syncToSheet(false));
+    // Search input (Needed Items)
+    neededSearchInput.addEventListener('input', (e) => {
+        state.searchQuery.needed = e.target.value.toLowerCase();
+        renderLists(['selected']);
+    });
+
+
 
     // --- Core Functions ---
 
     // --- Drag and Drop State ---
     let draggedItemIndex = null;
 
-    function renderLists() {
-        // Clear DOM
-        availableList.innerHTML = '';
-        selectedList.innerHTML = '';
+    function renderLists(columnsToRender = ['inventory', 'available', 'selected']) {
+        // Clear DOM conditionally
+        if (columnsToRender.includes('inventory')) inventoryList.innerHTML = '';
+        if (columnsToRender.includes('available')) allList.innerHTML = '';
+        if (columnsToRender.includes('selected')) selectedList.innerHTML = '';
 
-        // Render Available
-        const filteredAvailable = state.available.filter(item =>
-            item.toLowerCase().includes(state.searchQuery)
-        );
+        // --- Render Inventory (Left panel) ---
+        if (columnsToRender.includes('inventory')) {
+            const filteredInventory = state.inventory.filter(itemObj =>
+                itemObj.name.toLowerCase().includes(state.searchQuery.inventory)
+            );
 
-        if (filteredAvailable.length === 0) {
-            if (state.available.length === 0) {
-                availableList.innerHTML = '<li class="empty-state">No items available. Add one below!</li>';
+            if (filteredInventory.length === 0) {
+                if (state.inventory.length === 0) {
+                    inventoryList.innerHTML = '<li class="empty-state">No items in inventory. Add one below!</li>';
+                } else {
+                    inventoryList.innerHTML = '<li class="empty-state">No items match your search.</li>';
+                }
             } else {
-                availableList.innerHTML = '<li class="empty-state">No items match your search.</li>';
+                filteredInventory.forEach((itemObj) => {
+                    const originalIndex = state.inventory.indexOf(itemObj); // Keep original index based on inventory array
+
+                    const li = document.createElement('li');
+                    li.className = 'list-item';
+
+                    li.innerHTML = `
+                        <div class="item-name-group">
+                            <span class="item-text">${escapeHtml(itemObj.name)}</span>
+                        </div>
+                        <div class="item-controls" style="display: flex; align-items: center; gap: 1rem;">
+                            <input type="number" inputmode="numeric" pattern="[0-9]*" class="qty-input" value="${itemObj.qty}" min="0" data-index="${originalIndex}">
+                        </div>
+                    `;
+
+                    // Event listener to change quantity
+                    const qtyInput = li.querySelector('.qty-input');
+                    qtyInput.addEventListener('change', (e) => {
+                        const newQty = parseInt(e.target.value) || 0;
+                        state.inventory[originalIndex].qty = newQty;
+                        syncToSheet(true); // Background sync on QTY change
+                    });
+
+                    inventoryList.appendChild(li);
+                });
             }
-        } else {
-            filteredAvailable.forEach((item) => {
-                const originalIndex = state.available.indexOf(item);
-                const li = document.createElement('li');
-                li.className = 'list-item';
-                li.innerHTML = `
-                    <span class="item-text">${escapeHtml(item)}</span>
-                    <i class="ph ph-arrow-right action-icon"></i>
-                `;
-                li.querySelector('.action-icon').addEventListener('click', () => moveItem(originalIndex, 'available', 'selected'));
-                availableList.appendChild(li);
-            });
         }
 
-        // Render Selected
-        if (state.selected.length === 0) {
-            selectedList.innerHTML = '<li class="empty-state">No items selected.</li>';
-        } else {
-            state.selected.forEach((item, index) => {
-                const li = document.createElement('li');
-                li.className = 'list-item';
-                li.setAttribute('draggable', 'true');
-                li.dataset.index = index;
-                li.innerHTML = `
-                    <div style="display: flex; align-items: center; gap: 0.5rem;">
-                        <i class="ph ph-dots-six-vertical drag-handle" style="cursor: grab; opacity: 0.5;"></i>
-                        <span class="item-text">${escapeHtml(item)}</span>
-                    </div>
-                    <i class="ph ph-arrow-left action-icon"></i>
-                `;
-
-                // Click to move
-                li.querySelector('.action-icon').addEventListener('click', () => moveItem(index, 'selected', 'available'));
-
-                // Drag and Drop events
-                li.addEventListener('dragstart', handleDragStart);
-                li.addEventListener('dragover', handleDragOver);
-                li.addEventListener('dragleave', handleDragLeave);
-                li.addEventListener('drop', handleDrop);
-                li.addEventListener('dragend', handleDragEnd);
-
-                selectedList.appendChild(li);
+        // --- Render All Items (Middle panel) ---
+        if (columnsToRender.includes('available')) {
+            // Exclude items that are currently in the Selected (Needed) list so they naturally "move"
+            const filteredAll = state.available.filter(item => {
+                const matchesSearch = item.toLowerCase().includes(state.searchQuery.all);
+                const isSelected = state.selected.some(sel => sel.name === item);
+                return matchesSearch && !isSelected; // Hide from All Items if it's already Needed
             });
+
+            if (state.available.length === 0) {
+                allList.innerHTML = '<li class="empty-state">No items available. Add to inventory!</li>';
+            } else if (filteredAll.length === 0) {
+                if (state.available.length === state.selected.length) {
+                    allList.innerHTML = '<li class="empty-state">All items are currently needed!</li>';
+                } else {
+                    allList.innerHTML = '<li class="empty-state">No items match your search.</li>';
+                }
+            } else {
+                filteredAll.forEach((itemString) => {
+                    const li = document.createElement('li');
+                    li.className = 'list-item';
+
+                    // Action controls container
+                    const btnConfig = `
+                        <div class="item-controls" style="display: flex; align-items: center; gap: 0.25rem;">
+                            <i class="ph ph-pencil-simple action-icon edit-btn" style="color: var(--text-secondary);" title="Edit Item"></i>
+                            <i class="ph ph-trash action-icon delete-btn" style="color: var(--danger);" title="Remove Item"></i>
+                            <i class="ph ph-arrow-right action-icon move-btn" title="Add to Needed"></i>
+                        </div>
+                    `;
+
+                    li.innerHTML = `
+                        <span class="item-text">${escapeHtml(itemString)}</span>
+                        ${btnConfig}
+                    `;
+
+                    // Event listeners
+                    li.querySelector('.move-btn').addEventListener('click', () => moveToSelected(itemString));
+                    li.querySelector('.edit-btn').addEventListener('click', () => handleEditAllItem(itemString));
+                    li.querySelector('.delete-btn').addEventListener('click', () => handleDeleteAllItem(itemString));
+
+                    allList.appendChild(li);
+                });
+            }
         }
 
-        // Update counts
-        availableCount.textContent = state.available.length;
+        // --- Render Selected / Needed (Right panel) ---
+        if (columnsToRender.includes('selected')) {
+            const filteredNeeded = state.selected.filter(selObj =>
+                selObj.name.toLowerCase().includes(state.searchQuery.needed)
+            );
+
+            if (state.selected.length === 0) {
+                selectedList.innerHTML = '<li class="empty-state">No items needed.</li>';
+            } else if (filteredNeeded.length === 0) {
+                selectedList.innerHTML = '<li class="empty-state">No items match your search.</li>';
+            } else {
+                filteredNeeded.forEach((selItemObj) => {
+                    const originalIndex = state.selected.indexOf(selItemObj); // Get original index for correct operations
+
+                    const li = document.createElement('li');
+                    li.className = 'list-item';
+                    li.setAttribute('draggable', 'true');
+                    li.dataset.index = originalIndex;
+                    li.innerHTML = `
+                        <div style="display: flex; align-items: center; gap: 0.5rem;">
+                            <i class="ph ph-dots-six-vertical drag-handle" style="cursor: grab; opacity: 0.5;"></i>
+                            <span class="item-text">${escapeHtml(selItemObj.name)}</span>
+                        </div>
+                        <div class="item-controls" style="display: flex; align-items: center; gap: 1rem;">
+                            <i class="ph ph-arrow-left action-icon" style="color: var(--text-secondary);" title="Move back to All Items"></i>
+                        </div>
+                    `;
+
+                    // Click to remove from Needed and move back to All Items
+                    li.querySelector('.action-icon').addEventListener('click', () => removeFromSelected(originalIndex));
+
+                    // Drag and Drop events
+                    li.addEventListener('dragstart', handleDragStart);
+                    li.addEventListener('dragover', handleDragOver);
+                    li.addEventListener('dragleave', handleDragLeave);
+                    li.addEventListener('drop', handleDrop);
+                    li.addEventListener('dragend', handleDragEnd);
+
+                    selectedList.appendChild(li);
+                });
+            }
+        }
+
+        // Update counts conditionally or globally (global is cheap since it's just textContent)
+        inventoryCount.textContent = state.inventory.length;
+        const remainingAll = state.available.length - state.selected.length;
+        allCount.textContent = remainingAll > 0 ? remainingAll : 0;
         selectedCount.textContent = state.selected.length;
     }
 
-    // --- Drag and Drop Handlers ---
+    // --- Actions ---
+
+    async function handleEditAllItem(oldName) {
+        const pin = await showCustomPrompt('Enter PIN to modify this item:');
+        if (pin !== '949521' && pin !== '928461') {
+            showToast('Incorrect PIN', 'error');
+            return;
+        }
+
+        const newName = await showCustomPrompt('Edit item name:', oldName);
+        if (newName && newName.trim() !== '' && newName !== oldName) {
+            const index = state.available.indexOf(oldName);
+            if (index > -1) {
+                state.available[index] = newName.trim();
+                renderLists(['available']);
+                syncToSheet(true);
+            }
+        }
+    }
+
+    async function handleDeleteAllItem(itemName) {
+        const pin = await showCustomPrompt('Enter PIN to modify this item:');
+        if (pin !== '949521' && pin !== '928461') {
+            showToast('Incorrect PIN', 'error');
+            return;
+        }
+
+        // Using standard confirm here since it doesn't need an alphanumeric input
+        if (confirm(`Are you sure you want to permanently delete "${itemName}" from All Items?`)) {
+            const index = state.available.indexOf(itemName);
+            if (index > -1) {
+                state.available.splice(index, 1);
+                renderLists(['available']);
+                syncToSheet(true);
+            }
+        }
+    }
+
+    function moveToSelected(itemName) {
+        if (!state.selected.some(sel => sel.name === itemName)) {
+            state.selected.push({ name: itemName, qty: 1 }); // Default needed qty is 1
+            renderLists(['available', 'selected']);
+            syncToSheet(true);
+        }
+    }
+
+    function removeFromSelected(selectedIndex) {
+        state.selected.splice(selectedIndex, 1);
+        renderLists(['available', 'selected']);
+        syncToSheet(true);
+    }
 
     function handleDragStart(e) {
         draggedItemIndex = parseInt(this.dataset.index);
@@ -160,7 +384,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // Reorder array
             const item = state.selected.splice(draggedItemIndex, 1)[0];
             state.selected.splice(dropIndex, 0, item);
-            renderLists();
+            renderLists(['selected']);
 
             // Auto sync on reorder
             syncToSheet(true);
@@ -175,31 +399,28 @@ document.addEventListener('DOMContentLoaded', () => {
         draggedItemIndex = null;
     }
 
-    function moveItem(index, fromList, toList) {
-        const item = state[fromList].splice(index, 1)[0];
-        state[toList].push(item);
-        renderLists();
-    }
+
 
     // --- API Interactions ---
 
     async function fetchFromSheet(isAutoFetch = false) {
-        if (!isAutoFetch) {
-            syncBtn.classList.add('loading'); // Just showing loader somewhere since fetchBtn is gone
-            syncBtn.disabled = true;
-        }
-
         try {
-            // The JSONP strategy is sometimes needed to avoid CORS issues entirely if redirect happens,
-            // but for doGet returning JSON with a proper MimeType and execution as "Anyone", fetch works.
             const response = await fetch(scriptUrl);
             const data = await response.json();
 
             if (data.error) throw new Error(data.error);
 
-            if (data.available || data.selected) {
+            if (data.available || data.inventory || data.selected) {
                 state.available = data.available || [];
-                state.selected = data.selected || [];
+                // Reconstruct inventory ensuring quantities are bound
+                state.inventory = (data.inventory || []).map(invObj => {
+                    return { name: invObj.name, qty: invObj.qty || 0 };
+                });
+                state.selected = (data.selected || []).map(selObj => {
+                    // Backwards compatibility with arrays of strings from V2
+                    if (typeof selObj === 'string') return { name: selObj, qty: 1 };
+                    return { name: selObj.name, qty: selObj.qty || 1 };
+                });
                 renderLists();
 
                 if (!isAutoFetch) {
@@ -211,24 +432,13 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!isAutoFetch) {
                 showToast('Failed to load data. Check URL and permissions.', 'error');
             }
-        } finally {
-            if (!isAutoFetch) {
-                syncBtn.classList.remove('loading');
-                syncBtn.disabled = false;
-            }
         }
     }
 
     async function syncToSheet(isAutoSync = false) {
-        const icon = syncBtn.querySelector('i');
-        if (!isAutoSync) {
-            syncBtn.classList.add('loading');
-            icon.className = 'ph ph-spinner';
-            syncBtn.disabled = true;
-        }
-
         const payload = {
             available: state.available,
+            inventory: state.inventory,
             selected: state.selected
         };
 
@@ -253,12 +463,6 @@ document.addEventListener('DOMContentLoaded', () => {
             console.error('Sync error:', error);
             if (!isAutoSync) {
                 showToast('Failed to sync. Network error.', 'error');
-            }
-        } finally {
-            if (!isAutoSync) {
-                syncBtn.classList.remove('loading');
-                icon.className = 'ph ph-arrows-clockwise';
-                syncBtn.disabled = false;
             }
         }
     }

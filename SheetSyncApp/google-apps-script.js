@@ -33,59 +33,98 @@ function doGet(e) {
   const data = sheet.getDataRange().getValues();
   
   let available = [];
+  let inventory = [];
   let selected = [];
   
-  // Assuming row 1 is headers. If empty, we start at row 0 or 1.
-  // We'll read from row index 1 (the 2nd row) downwards to skip headers.
+  // Assuming row 1 is headers. We read from row index 1 downwards.
   for (let i = 1; i < data.length; i++) {
-    if (data[i][0] !== "" && data[i][0] !== undefined) available.push(String(data[i][0]));
-    if (data[i][1] !== "" && data[i][1] !== undefined) selected.push(String(data[i][1]));
+    // Column A & B: Inventory List
+    const invName = String(data[i][0]);
+    if (invName && invName !== "undefined" && invName.trim() !== "") {
+      const qtyStr = String(data[i][1]);
+      const qty = (qtyStr && !isNaN(qtyStr)) ? parseInt(qtyStr, 10) : 0;
+      inventory.push({ name: invName, qty: qty });
+    }
+    
+    // Column C: All Items List
+    const allName = String(data[i][2]);
+    if (allName && allName !== "undefined" && allName.trim() !== "") {
+      available.push(allName);
+    }
+    
+    // Column D & E: Needed List
+    const neededItem = String(data[i][3]);
+    if (neededItem && neededItem !== "undefined" && neededItem.trim() !== "") {
+      const neededQtyStr = String(data[i][4]);
+      const neededQty = (neededQtyStr && !isNaN(neededQtyStr)) ? parseInt(neededQtyStr, 10) : 1;
+      selected.push({ name: neededItem, qty: neededQty });
+    }
   }
   
-  // If the sheet is completely empty (data.length <= 1), return empty arrays
-  return createJsonResponse({ available: available, selected: selected });
+  return createJsonResponse({ available: available, inventory: inventory, selected: selected });
 }
 
 function doPost(e) {
+  const sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+  
   let requestData;
   try {
     requestData = JSON.parse(e.postData.contents);
-  } catch(err) {
-    return createJsonResponse({ error: "Invalid JSON format" });
-  }
-
-  const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEET_NAME);
-  if (!sheet) {
-    return createJsonResponse({ error: "Sheet '" + SHEET_NAME + "' not found." });
+  } catch (err) {
+    return createJsonResponse({ error: "Invalid JSON payload" });
   }
   
   sheet.clearContents();
   
-  // Set headers
-  sheet.getRange(1, 1, 1, 2).setValues([["Available Items", "Selected Items"]]);
-  sheet.getRange(1, 1, 1, 2).setFontWeight("bold");
+  // Set headers for 5 columns
+  sheet.getRange(1, 1, 1, 5).setValues([["Inventory Item", "Inventory Qty", "All Items", "Needed Item", "Needed Qty"]]);
+  sheet.getRange(1, 1, 1, 5).setFontWeight("bold");
   
-  const available = requestData.available || [];
-  const selected = requestData.selected || [];
+  const available = requestData.available || []; // String array
+  const inventory = requestData.inventory || []; // [{name, qty}, ...]
+  const selected = requestData.selected || [];   // [{name, qty}, ...]
   
-  const maxRows = Math.max(available.length, selected.length);
+  const maxRows = Math.max(available.length, inventory.length, selected.length);
   
   if (maxRows > 0) {
     let writeData = [];
     for (let i = 0; i < maxRows; i++) {
+        
+      // Inventory (Cols A, B)
+      let invName = "";
+      let invQty = "";
+      if (inventory[i]) {
+          invName = inventory[i].name || "";
+          invQty = inventory[i].qty !== undefined ? inventory[i].qty : 0;
+      }
+      
+      // All Items (Col C)
+      let allName = available[i] !== undefined ? available[i] : "";
+
+      // Needed Items (Cols D, E)
+      let neededName = "";
+      let neededQty = "";
+      if (selected[i]) {
+          neededName = selected[i].name || selected[i]; // Handle object or string legacy
+          neededQty = selected[i].qty !== undefined ? selected[i].qty : 1;
+      }
+
       writeData.push([
-        available[i] !== undefined ? available[i] : "",
-        selected[i] !== undefined ? selected[i] : ""
+        invName,
+        invName !== "" ? invQty : "",
+        allName,
+        neededName,
+        neededName !== "" ? neededQty : "" // Only write qty if name exists
       ]);
     }
-    // Batch write all data
-    sheet.getRange(2, 1, writeData.length, 2).setValues(writeData);
+    // Batch write all data to 5 columns
+    sheet.getRange(2, 1, writeData.length, 5).setValues(writeData);
   }
   
   return createJsonResponse({ success: true, message: "Sheet updated successfully" });
 }
 
-// Helper to return proper JSON with CORS headers (though App Script masks some CORS, JSON output is standard)
+// Helper to return proper JSON with CORS headers
 function createJsonResponse(data) {
   return ContentService.createTextOutput(JSON.stringify(data))
     .setMimeType(ContentService.MimeType.JSON);

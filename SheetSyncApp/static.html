@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Static List - ASILM</title>
+    <!-- Basic generic styling for black and white static look -->
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            color: #000;
+            background: #fff;
+            margin: 0;
+            padding: 2rem;
+            line-height: 1.6;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #000;
+            padding-bottom: 1rem;
+            margin-bottom: 2rem;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 1.5rem;
+        }
+        .back-link {
+            text-decoration: none;
+            color: #000;
+            border: 1px solid #000;
+            padding: 0.5rem 1rem;
+            font-size: 0.9rem;
+        }
+        .back-link:hover {
+            background-color: #f0f0f0;
+        }
+        .columns {
+            display: flex;
+            gap: 4rem;
+        }
+        .column {
+            flex: 1;
+        }
+        .column h2 {
+            border-bottom: 1px solid #000;
+            padding-bottom: 0.5rem;
+            margin-top: 0;
+        }
+        .list-container {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .list-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #eee;
+        }
+        .empty-state {
+            font-style: italic;
+            color: #666;
+            padding: 1rem 0;
+        }
+        @media print {
+            .back-link {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>ASILM - Static View</h1>
+        <a href="index.html" class="back-link">Back to Editor</a>
+    </div>
+
+    <div class="columns">
+        <div class="column">
+            <h2>Current Inventory</h2>
+            <ul id="inventoryList" class="list-container">
+                <li class="empty-state">Loading...</li>
+            </ul>
+        </div>
+        
+        <div class="column">
+            <h2>Items Needed</h2>
+            <ul id="neededList" class="list-container">
+                <li class="empty-state">Loading...</li>
+            </ul>
+        </div>
+    </div>
+
+    <script src="static.js?v=1"></script>
+</body>
+</html>
