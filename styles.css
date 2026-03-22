@@ -247,6 +247,10 @@ header {
     to { opacity: 1; transform: translateY(0); }
 }
 
+body.no-animate .list-item {
+    animation: none !important;
+}
+
 .list-item:hover {
     background: rgba(255, 255, 255, 0.1);
 }

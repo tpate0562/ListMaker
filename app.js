@@ -421,7 +421,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (typeof selObj === 'string') return { name: selObj, qty: 1 };
                     return { name: selObj.name, qty: selObj.qty || 1 };
                 });
+                if (isAutoFetch) document.body.classList.add('no-animate');
                 renderLists();
+                if (isAutoFetch) document.body.classList.remove('no-animate');
 
                 if (!isAutoFetch) {
                     showToast('Data loaded from sheet!', 'success');
