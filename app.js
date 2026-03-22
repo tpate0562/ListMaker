@@ -411,24 +411,26 @@ document.addEventListener('DOMContentLoaded', () => {
             if (data.error) throw new Error(data.error);
 
             if (data.available || data.inventory || data.selected) {
-                state.available = data.available || [];
-                // Reconstruct inventory ensuring quantities are bound
-                state.inventory = (data.inventory || []).map(invObj => {
+                const newAvailable = data.available || [];
+                const newInventory = (data.inventory || []).map(invObj => {
                     return { name: invObj.name, qty: invObj.qty || 0 };
                 });
-                state.selected = (data.selected || []).map(selObj => {
-                    // Backwards compatibility with arrays of strings from V2
+                const newSelected = (data.selected || []).map(selObj => {
                     if (typeof selObj === 'string') return { name: selObj, qty: 1 };
                     return { name: selObj.name, qty: selObj.qty || 1 };
                 });
-                if (isAutoFetch) document.body.classList.add('no-animate');
-                renderLists();
-                if (isAutoFetch) {
-                    requestAnimationFrame(() => {
-                        requestAnimationFrame(() => {
-                            document.body.classList.remove('no-animate');
-                        });
-                    });
+
+                // Only re-render if data actually changed
+                const hasChanged = JSON.stringify(newAvailable) !== JSON.stringify(state.available) ||
+                    JSON.stringify(newInventory) !== JSON.stringify(state.inventory) ||
+                    JSON.stringify(newSelected) !== JSON.stringify(state.selected);
+
+                state.available = newAvailable;
+                state.inventory = newInventory;
+                state.selected = newSelected;
+
+                if (!isAutoFetch || hasChanged) {
+                    renderLists();
                 }
 
                 if (!isAutoFetch) {
