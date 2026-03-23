@@ -96,15 +96,14 @@
 
 
 
-    <!-- Custom Numeric Prompt Modal (forces numeric keyboard on mobile) -->
-    <div id="numericPromptModal" class="modal-overlay hidden">
+    <!-- Quantity Prompt Modal (Numeric Keyboard) -->
+    <div id="qtyPromptModal" class="modal-overlay hidden">
         <div class="modal-content glass-panel">
-            <h3 id="numericPromptMessage">Enter Quantity</h3>
-            <!-- inputmode="numeric" triggers the numeric keypad on iOS/Android -->
-            <input type="number" inputmode="numeric" pattern="[0-9]*" id="numericPromptInput" class="custom-prompt-input" autocomplete="off" min="0">
+            <h3 id="qtyPromptMessage">Set Quantity</h3>
+            <input type="text" inputmode="numeric" pattern="[0-9]*" id="qtyPromptInput" class="custom-prompt-input" autocomplete="off">
             <div class="modal-actions">
-                <button id="numericPromptCancel" class="btn-cancel">Cancel</button>
-                <button id="numericPromptSubmit" class="btn-submit">Submit</button>
+                <button id="qtyPromptCancel" class="btn-cancel">Cancel</button>
+                <button id="qtyPromptSubmit" class="btn-submit">Save</button>
             </div>
         </div>
     </div>

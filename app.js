@@ -43,37 +43,35 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Event Listeners ---
 
-    // Custom Numeric Prompt (for quantity - forces mobile numeric keyboard)
-    const numericPromptModal = document.getElementById('numericPromptModal');
-    const numericPromptMessage = document.getElementById('numericPromptMessage');
-    const numericPromptInput = document.getElementById('numericPromptInput');
-    const numericPromptCancel = document.getElementById('numericPromptCancel');
-    const numericPromptSubmit = document.getElementById('numericPromptSubmit');
+    // Custom Quantity Prompt (for numeric keyboard)
+    const qtyPromptModal = document.getElementById('qtyPromptModal');
+    const qtyPromptMessage = document.getElementById('qtyPromptMessage');
+    const qtyPromptInput = document.getElementById('qtyPromptInput');
+    const qtyPromptCancel = document.getElementById('qtyPromptCancel');
+    const qtyPromptSubmit = document.getElementById('qtyPromptSubmit');
 
-    function showNumericPrompt(message, defaultValue = '') {
+    function showQuantityPrompt(message, defaultValue = '') {
         return new Promise((resolve) => {
-            numericPromptMessage.textContent = message;
-            numericPromptInput.value = defaultValue;
-            numericPromptModal.classList.remove('hidden');
-            numericPromptModal.classList.add('active');
+            qtyPromptMessage.textContent = message;
+            qtyPromptInput.value = defaultValue;
+            qtyPromptModal.classList.remove('hidden');
+            qtyPromptModal.classList.add('active');
+            qtyPromptInput.focus();
             
-            // Short delay to ensure transition completes before focusing
-            setTimeout(() => {
-                numericPromptInput.focus();
-                numericPromptInput.select();
-            }, 50);
+            // Auto-select the text for easy rapid overwriting
+            setTimeout(() => qtyPromptInput.select(), 50);
 
             const cleanup = () => {
-                numericPromptModal.classList.remove('active');
-                setTimeout(() => numericPromptModal.classList.add('hidden'), 300);
-                numericPromptSubmit.removeEventListener('click', handleSubmit);
-                numericPromptCancel.removeEventListener('click', handleCancel);
-                numericPromptInput.removeEventListener('keypress', handleEnter);
+                qtyPromptModal.classList.remove('active');
+                setTimeout(() => qtyPromptModal.classList.add('hidden'), 300);
+                qtyPromptSubmit.removeEventListener('click', handleSubmit);
+                qtyPromptCancel.removeEventListener('click', handleCancel);
+                qtyPromptInput.removeEventListener('keypress', handleEnter);
             };
 
             const handleSubmit = () => {
                 cleanup();
-                resolve(numericPromptInput.value);
+                resolve(qtyPromptInput.value);
             };
 
             const handleCancel = () => {
@@ -85,9 +83,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (e.key === 'Enter') handleSubmit();
             };
 
-            numericPromptSubmit.addEventListener('click', handleSubmit);
-            numericPromptCancel.addEventListener('click', handleCancel);
-            numericPromptInput.addEventListener('keypress', handleEnter);
+            qtyPromptSubmit.addEventListener('click', handleSubmit);
+            qtyPromptCancel.addEventListener('click', handleCancel);
+            qtyPromptInput.addEventListener('keypress', handleEnter);
         });
     }
 
@@ -181,7 +179,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     // Tap to edit quantity via prompt
                     const qtyBadge = li.querySelector('.qty-badge');
                     qtyBadge.addEventListener('click', async () => {
-                        const newVal = await showNumericPrompt(`Quantity for "${itemObj.name}":`, String(itemObj.qty));
+                        const newVal = await showQuantityPrompt(`Qty for "${itemObj.name}":`, String(itemObj.qty));
                         if (newVal !== null) {
                             const newQty = parseInt(newVal) || 0;
                             state.inventory[originalIndex].qty = newQty;
