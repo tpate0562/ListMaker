@@ -260,30 +260,34 @@ body.no-animate .list-item {
     word-break: break-word;
 }
 
-/* Numeric Input for Inventory */
-.qty-input {
-    width: 60px;
+/* Quantity Badge (tappable) */
+.qty-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 44px;
+    padding: 0.35rem 0.75rem;
     background: rgba(0, 0, 0, 0.3);
     border: 1px solid rgba(255, 255, 255, 0.1);
     color: white;
-    border-radius: 6px;
-    padding: 0.35rem;
+    border-radius: 20px;
     font-family: inherit;
-    text-align: center;
-    font-size: 0.9rem;
-    outline: none;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
     transition: var(--transition);
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
 }
 
-.qty-input:focus {
+.qty-badge:hover {
     border-color: var(--primary-light);
-    box-shadow: 0 0 0 2px rgba(131, 31, 24, 0.3);
+    background: rgba(131, 31, 24, 0.3);
+    transform: scale(1.05);
 }
 
-/* Webkit specifically to hide default spin buttons nicely on hover or just keep them looking ok */
-.qty-input::-webkit-outer-spin-button,
-.qty-input::-webkit-inner-spin-button {
-    opacity: 1;
+.qty-badge:active {
+    transform: scale(0.95);
 }
 
 .list-item .action-icon {

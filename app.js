@@ -194,16 +194,20 @@ document.addEventListener('DOMContentLoaded', () => {
                             <span class="item-text">${escapeHtml(itemObj.name)}</span>
                         </div>
                         <div class="item-controls" style="display: flex; align-items: center; gap: 1rem;">
-                            <input type="number" inputmode="numeric" pattern="[0-9]*" class="qty-input" value="${itemObj.qty}" min="0" data-index="${originalIndex}">
+                            <span class="qty-badge" data-index="${originalIndex}" title="Tap to edit quantity">${itemObj.qty}</span>
                         </div>
                     `;
 
-                    // Event listener to change quantity
-                    const qtyInput = li.querySelector('.qty-input');
-                    qtyInput.addEventListener('change', (e) => {
-                        const newQty = parseInt(e.target.value) || 0;
-                        state.inventory[originalIndex].qty = newQty;
-                        syncToSheet(true); // Background sync on QTY change
+                    // Tap to edit quantity via prompt
+                    const qtyBadge = li.querySelector('.qty-badge');
+                    qtyBadge.addEventListener('click', async () => {
+                        const newVal = await showCustomPrompt(`Set quantity for "${itemObj.name}":`, String(itemObj.qty));
+                        if (newVal !== null) {
+                            const newQty = parseInt(newVal) || 0;
+                            state.inventory[originalIndex].qty = newQty;
+                            qtyBadge.textContent = newQty;
+                            syncToSheet(true);
+                        }
                     });
 
                     inventoryList.appendChild(li);
