@@ -417,6 +417,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (data.error) throw new Error(data.error);
 
+            // Discard stale responses that arrive during the push cooldown
+            if (isAutoFetch && Date.now() - lastPushTime < 8000) return;
+
             if (data.available || data.inventory || data.selected) {
                 const newAvailable = data.available || [];
                 const newInventory = (data.inventory || []).map(invObj => {
