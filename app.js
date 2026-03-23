@@ -7,10 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const allCount = document.getElementById('availableCount');
     const selectedCount = document.getElementById('selectedCount');
 
-    const newItemInput = document.getElementById('newItemInput');
-    const addItemBtn = document.getElementById('addItemBtn');
-    const newAllItemInput = document.getElementById('newAvailableItemInput');
-    const addAllItemBtn = document.getElementById('addAvailableItemBtn');
+
 
 
     const searchInput = document.getElementById('searchInput');
@@ -46,72 +43,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Event Listeners ---
 
-    // Custom Async Prompt (replaces window.prompt)
-    const customPromptModal = document.getElementById('customPromptModal');
-    const customPromptMessage = document.getElementById('customPromptMessage');
-    const customPromptInput = document.getElementById('customPromptInput');
-    const customPromptCancel = document.getElementById('customPromptCancel');
-    const customPromptSubmit = document.getElementById('customPromptSubmit');
-
-    function showCustomPrompt(message, defaultValue = '') {
-        return new Promise((resolve) => {
-            customPromptMessage.textContent = message;
-            customPromptInput.value = defaultValue;
-            customPromptModal.classList.remove('hidden');
-            customPromptModal.classList.add('active');
-            customPromptInput.focus();
-
-            const cleanup = () => {
-                customPromptModal.classList.remove('active');
-                setTimeout(() => customPromptModal.classList.add('hidden'), 300); // Wait for transition
-                customPromptSubmit.removeEventListener('click', handleSubmit);
-                customPromptCancel.removeEventListener('click', handleCancel);
-                customPromptInput.removeEventListener('keypress', handleEnter);
-            };
-
-            const handleSubmit = () => {
-                cleanup();
-                resolve(customPromptInput.value);
-            };
-
-            const handleCancel = () => {
-                cleanup();
-                resolve(null);
-            };
-
-            const handleEnter = (e) => {
-                if (e.key === 'Enter') handleSubmit();
-            };
-
-            customPromptSubmit.addEventListener('click', handleSubmit);
-            customPromptCancel.addEventListener('click', handleCancel);
-            customPromptInput.addEventListener('keypress', handleEnter);
-        });
-    }
-
-    // Add to Inventory
-    const handleAddInventoryItem = async (inputElem) => {
-        const val = inputElem.value.trim();
-        if (val && !state.inventory.some(i => i.name === val)) {
-            const pin = await showCustomPrompt('Enter PIN to add custom item:');
-            if (pin !== '949521' && pin !== '928461') {
-                showToast('Incorrect PIN', 'error');
-                return;
-            }
-            state.inventory.push({ name: val, qty: 0 });
-            inputElem.value = '';
-            renderLists(['inventory']);
-            syncToSheet(true);
-        } else if (state.inventory.some(i => i.name === val)) {
-            showToast('Item already in inventory!', 'error');
-        }
-    };
-
     // Add to All Items
-    const handleAddAllItem = async (inputElem) => {
+    const handleAddAllItem = (inputElem) => {
         const val = inputElem.value.trim();
         if (val && !state.available.includes(val)) {
-            const pin = await showCustomPrompt('Enter PIN to add custom item:');
+            const pin = prompt('Enter PIN to add custom item:');
             if (pin !== '949521' && pin !== '928461') {
                 showToast('Incorrect PIN', 'error');
                 return;
@@ -125,13 +61,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    // Inventory column add events
-    addItemBtn.addEventListener('click', () => handleAddInventoryItem(newItemInput));
-    newItemInput.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') handleAddInventoryItem(newItemInput);
-    });
-
     // All Items column add events
+    const newAllItemInput = document.getElementById('newAvailableItemInput');
+    const addAllItemBtn = document.getElementById('addAvailableItemBtn');
     if (addAllItemBtn && newAllItemInput) {
         addAllItemBtn.addEventListener('click', () => handleAddAllItem(newAllItemInput));
         newAllItemInput.addEventListener('keypress', (e) => {
@@ -200,8 +132,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
                     // Tap to edit quantity via prompt
                     const qtyBadge = li.querySelector('.qty-badge');
-                    qtyBadge.addEventListener('click', async () => {
-                        const newVal = await showCustomPrompt(`Set quantity for "${itemObj.name}":`, String(itemObj.qty));
+                    qtyBadge.addEventListener('click', () => {
+                        const newVal = prompt(`Set quantity for "${itemObj.name}":`, String(itemObj.qty));
                         if (newVal !== null) {
                             const newQty = parseInt(newVal) || 0;
                             state.inventory[originalIndex].qty = newQty;
@@ -313,14 +245,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Actions ---
 
-    async function handleEditAllItem(oldName) {
-        const pin = await showCustomPrompt('Enter PIN to modify this item:');
+    function handleEditAllItem(oldName) {
+        const pin = prompt('Enter PIN to modify this item:');
         if (pin !== '949521' && pin !== '928461') {
             showToast('Incorrect PIN', 'error');
             return;
         }
 
-        const newName = await showCustomPrompt('Edit item name:', oldName);
+        const newName = prompt('Edit item name:', oldName);
         if (newName && newName.trim() !== '' && newName !== oldName) {
             const index = state.available.indexOf(oldName);
             if (index > -1) {
@@ -331,8 +263,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    async function handleDeleteAllItem(itemName) {
-        const pin = await showCustomPrompt('Enter PIN to modify this item:');
+    function handleDeleteAllItem(itemName) {
+        const pin = prompt('Enter PIN to modify this item:');
         if (pin !== '949521' && pin !== '928461') {
             showToast('Incorrect PIN', 'error');
             return;
