@@ -305,6 +305,40 @@ body.no-animate .list-item {
     background: rgba(255, 255, 255, 0.1);
 }
 
+/* Action Text Buttons (Add / Remove) */
+.action-text-btn {
+    font-size: 0.85rem;
+    font-weight: 600;
+    padding: 0.35rem 0.75rem;
+    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: var(--transition);
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.action-text-btn:hover {
+    background: rgba(255, 255, 255, 0.15);
+    color: var(--text-primary);
+    transform: scale(1.05);
+}
+
+.action-text-btn:active {
+    transform: scale(0.95);
+}
+
+.action-text-btn.move-btn:hover {
+    color: var(--success);
+    background: rgba(16, 185, 129, 0.15);
+}
+
+.action-text-btn.remove-btn:hover {
+    color: var(--danger);
+    background: rgba(239, 68, 68, 0.15);
+}
+
 /* Drag and Drop Styles */
 .list-item[draggable="true"] {
     cursor: grab;

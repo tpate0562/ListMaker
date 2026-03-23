@@ -174,7 +174,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         <div class="item-controls" style="display: flex; align-items: center; gap: 0.25rem;">
                             <i class="ph ph-pencil-simple action-icon edit-btn" style="color: var(--text-secondary);" title="Edit Item"></i>
                             <i class="ph ph-trash action-icon delete-btn" style="color: var(--danger);" title="Remove Item"></i>
-                            <i class="ph ph-arrow-right action-icon move-btn" title="Add to Needed"></i>
+                            <span class="action-text-btn move-btn" title="Add to Needed">Add</span>
                         </div>
                     `;
 
@@ -217,12 +217,12 @@ document.addEventListener('DOMContentLoaded', () => {
                             <span class="item-text">${escapeHtml(selItemObj.name)}</span>
                         </div>
                         <div class="item-controls" style="display: flex; align-items: center; gap: 1rem;">
-                            <i class="ph ph-arrow-left action-icon" style="color: var(--text-secondary);" title="Move back to All Items"></i>
+                            <span class="action-text-btn remove-btn" title="Move back to All Items">Remove</span>
                         </div>
                     `;
 
                     // Click to remove from Needed and move back to All Items
-                    li.querySelector('.action-icon').addEventListener('click', () => removeFromSelected(originalIndex));
+                    li.querySelector('.remove-btn').addEventListener('click', () => removeFromSelected(originalIndex));
 
                     // Drag and Drop events
                     li.addEventListener('dragstart', handleDragStart);
@@ -376,7 +376,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
 
                 if (!isAutoFetch) {
-                    showToast('Data loaded from sheet!', 'success');
+                    showToast('Data loaded successfully!', 'success');
                 }
             }
         } catch (error) {
