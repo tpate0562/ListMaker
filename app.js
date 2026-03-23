@@ -43,6 +43,54 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Event Listeners ---
 
+    // Custom Numeric Prompt (for quantity - forces mobile numeric keyboard)
+    const numericPromptModal = document.getElementById('numericPromptModal');
+    const numericPromptMessage = document.getElementById('numericPromptMessage');
+    const numericPromptInput = document.getElementById('numericPromptInput');
+    const numericPromptCancel = document.getElementById('numericPromptCancel');
+    const numericPromptSubmit = document.getElementById('numericPromptSubmit');
+
+    function showNumericPrompt(message, defaultValue = '') {
+        return new Promise((resolve) => {
+            numericPromptMessage.textContent = message;
+            numericPromptInput.value = defaultValue;
+            numericPromptModal.classList.remove('hidden');
+            numericPromptModal.classList.add('active');
+            
+            // Short delay to ensure transition completes before focusing
+            setTimeout(() => {
+                numericPromptInput.focus();
+                numericPromptInput.select();
+            }, 50);
+
+            const cleanup = () => {
+                numericPromptModal.classList.remove('active');
+                setTimeout(() => numericPromptModal.classList.add('hidden'), 300);
+                numericPromptSubmit.removeEventListener('click', handleSubmit);
+                numericPromptCancel.removeEventListener('click', handleCancel);
+                numericPromptInput.removeEventListener('keypress', handleEnter);
+            };
+
+            const handleSubmit = () => {
+                cleanup();
+                resolve(numericPromptInput.value);
+            };
+
+            const handleCancel = () => {
+                cleanup();
+                resolve(null);
+            };
+
+            const handleEnter = (e) => {
+                if (e.key === 'Enter') handleSubmit();
+            };
+
+            numericPromptSubmit.addEventListener('click', handleSubmit);
+            numericPromptCancel.addEventListener('click', handleCancel);
+            numericPromptInput.addEventListener('keypress', handleEnter);
+        });
+    }
+
     // Add to All Items
     const handleAddAllItem = (inputElem) => {
         const val = inputElem.value.trim();
@@ -132,8 +180,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
                     // Tap to edit quantity via prompt
                     const qtyBadge = li.querySelector('.qty-badge');
-                    qtyBadge.addEventListener('click', () => {
-                        const newVal = prompt(`Set quantity for "${itemObj.name}":`, String(itemObj.qty));
+                    qtyBadge.addEventListener('click', async () => {
+                        const newVal = await showNumericPrompt(`Quantity for "${itemObj.name}":`, String(itemObj.qty));
                         if (newVal !== null) {
                             const newQty = parseInt(newVal) || 0;
                             state.inventory[originalIndex].qty = newQty;

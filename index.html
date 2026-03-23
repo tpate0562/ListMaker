@@ -20,7 +20,7 @@
             <div class="header-content" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
                 <div class="logo">
                     <i class="ph-fill ph-google-logo"></i>
-                    <h1>ASILM</h1>
+                    <h3>List & Inventory Manager</h3>
                 </div>
                 <a href="static.html" style="color: var(--text-secondary); text-decoration: none; font-weight: 500; font-size: 0.9rem; padding: 0.5rem 1rem; border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; transition: var(--transition);" onmouseover="this.style.background='rgba(255,255,255,0.1)'; this.style.color='var(--primary-light)';" onmouseout="this.style.background='transparent'; this.style.color='var(--text-secondary)';">View as static list</a>
             </div>
@@ -95,6 +95,19 @@
     </div>
 
 
+
+    <!-- Custom Numeric Prompt Modal (forces numeric keyboard on mobile) -->
+    <div id="numericPromptModal" class="modal-overlay hidden">
+        <div class="modal-content glass-panel">
+            <h3 id="numericPromptMessage">Enter Quantity</h3>
+            <!-- inputmode="numeric" triggers the numeric keypad on iOS/Android -->
+            <input type="number" inputmode="numeric" pattern="[0-9]*" id="numericPromptInput" class="custom-prompt-input" autocomplete="off" min="0">
+            <div class="modal-actions">
+                <button id="numericPromptCancel" class="btn-cancel">Cancel</button>
+                <button id="numericPromptSubmit" class="btn-submit">Submit</button>
+            </div>
+        </div>
+    </div>
 
     <!-- Toast Notification -->
     <div id="toast" class="toast hidden">
