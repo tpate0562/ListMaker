@@ -31,6 +31,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
     const scriptUrl = 'https://script.google.com/macros/s/AKfycbyg1ywdChhD_wR1UwCA-9Fbl3l8VjjUqXpSwXw-RGR61bamZopIe4GieRqelOk4fSkl/exec';
+    let lastPushTime = 0; // Tracks when we last pushed, to avoid fetch overwriting local changes
 
     // --- Initialization ---
     fetchFromSheet(false);
@@ -38,6 +39,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Auto-pull from sheet every 5 seconds to stay in sync
     setInterval(() => {
+        // Skip fetch if we pushed recently (give sheet time to update)
+        if (Date.now() - lastPushTime < 8000) return;
         fetchFromSheet(true);
     }, 5000);
 
@@ -451,6 +454,8 @@ document.addEventListener('DOMContentLoaded', () => {
             inventory: state.inventory,
             selected: state.selected
         };
+
+        lastPushTime = Date.now();
 
         try {
             // Using no-cors because Apps Script doPost sends a 302 redirect.
