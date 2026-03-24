@@ -311,7 +311,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function handleEditAllItem(oldName) {
         const pin = prompt('Enter PIN to modify this item:');
-        if (pin !== '949521' && pin !== '928461') {
+        if (pin !== '949521' && pin !== '928461' && pin !== '555555') {
             showToast('Incorrect PIN', 'error');
             return;
         }
@@ -329,7 +329,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function handleDeleteAllItem(itemName) {
         const pin = prompt('Enter PIN to modify this item:');
-        if (pin !== '949521' && pin !== '928461') {
+        if (pin !== '949521' && pin !== '928461' && pin !== '555555') {
             showToast('Incorrect PIN', 'error');
             return;
         }
