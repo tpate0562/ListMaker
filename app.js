@@ -2,13 +2,13 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebas
 import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyCYc5K8UP2gLrWE_hLKXv2A7wBlGygxwGY",
-  authDomain: "apple-spice-list-manager.firebaseapp.com",
-  projectId: "apple-spice-list-manager",
-  storageBucket: "apple-spice-list-manager.firebasestorage.app",
-  messagingSenderId: "223352105923",
-  appId: "1:223352105923:web:717c8b5b75b254187bab76",
-  measurementId: "G-T7LCD6T5BQ"
+    apiKey: "AIzaSyCYc5K8UP2gLrWE_hLKXv2A7wBlGygxwGY",
+    authDomain: "apple-spice-list-manager.firebaseapp.com",
+    projectId: "apple-spice-list-manager",
+    storageBucket: "apple-spice-list-manager.firebasestorage.app",
+    messagingSenderId: "223352105923",
+    appId: "1:223352105923:web:717c8b5b75b254187bab76",
+    measurementId: "G-T7LCD6T5BQ"
 };
 
 const app = initializeApp(firebaseConfig);
@@ -64,7 +64,7 @@ document.addEventListener('DOMContentLoaded', () => {
             qtyPromptModal.classList.remove('hidden');
             qtyPromptModal.classList.add('active');
             qtyPromptInput.focus();
-            
+
             // Auto-select the text for easy rapid overwriting
             setTimeout(() => qtyPromptInput.select(), 50);
 
@@ -101,7 +101,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const val = inputElem.value.trim();
         if (val && !state.available.includes(val)) {
             const pin = prompt('Enter PIN to add custom item:');
-            if (pin !== '949521' && pin !== '928461') {
+            if (pin !== '949521' && pin !== '928461' && pin !== '555555') {
                 showToast('Incorrect PIN', 'error');
                 return;
             }
@@ -410,7 +410,7 @@ document.addEventListener('DOMContentLoaded', () => {
     onSnapshot(listDocRef, (docSnap) => {
         if (docSnap.exists()) {
             const data = docSnap.data();
-            
+
             const newAvailable = data.available || [];
             const newInventory = (data.inventory || []).map(invObj => {
                 return { name: invObj.name, qty: invObj.qty || 0 };
