@@ -23,6 +23,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const inventoryCount = document.getElementById('inventoryCount');
     const allCount = document.getElementById('availableCount');
     const selectedCount = document.getElementById('selectedCount');
+    const clearInventoryBtn = document.getElementById('clearInventoryBtn');
 
 
 
@@ -120,6 +121,17 @@ document.addEventListener('DOMContentLoaded', () => {
         addAllItemBtn.addEventListener('click', () => handleAddAllItem(newAllItemInput));
         newAllItemInput.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') handleAddAllItem(newAllItemInput);
+        });
+    }
+
+    // Clear Inventory Quantities
+    if (clearInventoryBtn) {
+        clearInventoryBtn.addEventListener('click', () => {
+            if (confirm('Are you sure you want to set all Grab & Go quantities to 0?')) {
+                state.inventory.forEach(item => item.qty = 0);
+                renderLists(['inventory']);
+                syncToSheet(true);
+            }
         });
     }
 

@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Database Admin - Apple Spice List Manager</title>
+    <!-- Modern typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- SVG Icons via Phosphor Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <link rel="stylesheet" href="styles.css?v=2">
+    <style>
+        .admin-section {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .json-editor {
+            width: 100%;
+            height: 300px;
+            font-family: monospace;
+            padding: 1rem;
+            border-radius: 8px;
+            border: 1px solid rgba(255,255,255,0.2);
+            background: rgba(0,0,0,0.3);
+            color: #fff;
+            resize: vertical;
+        }
+
+        .save-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 6px;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .save-btn:hover {
+            background: var(--primary-dark);
+        }
+
+        .item-list-admin {
+            max-height: 250px;
+            overflow-y: auto;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 0.5rem;
+        }
+
+        .item-list-admin li {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        .item-list-admin li:last-child {
+            border-bottom: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="background-animation"></div>
+
+    <div class="container">
+        <header class="glass-panel">
+            <div class="header-content" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                <div class="logo">
+                    <i class="ph-fill ph-database"></i>
+                    <h3>Database Admin</h3>
+                </div>
+                <a href="index.html" style="color: var(--text-secondary); text-decoration: none; font-weight: 500; font-size: 0.9rem; padding: 0.5rem 1rem; border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; transition: var(--transition);" onmouseover="this.style.background='rgba(255,255,255,0.1)'; this.style.color='var(--primary-light)';" onmouseout="this.style.background='transparent'; this.style.color='var(--text-secondary)';">Back to App</a>
+            </div>
+        </header>
+
+        <main class="lists-container" style="grid-template-columns: 1fr 1fr;">
+            <!-- Grab & Go Inventory Editor -->
+            <section class="list-panel glass-panel">
+                <div class="panel-header">
+                    <h2><i class="ph ph-package"></i> Edit Grab & Go (Inventory)</h2>
+                </div>
+                
+                <div class="add-item-container" style="margin-bottom: 1rem;">
+                    <input type="text" id="newInventoryInput" placeholder="Add custom item name...">
+                    <button id="addInventoryBtn" class="primary-btn"><i class="ph ph-plus"></i> Add</button>
+                </div>
+
+                <div class="admin-section">
+                    <h4>Current Items:</h4>
+                    <ul class="item-list-admin" id="adminInventoryList">
+                        <li>Loading...</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- Items Not Needed Editor -->
+            <section class="list-panel glass-panel">
+                <div class="panel-header">
+                    <h2><i class="ph ph-list-bullets"></i> Edit Items Not Needed (Available)</h2>
+                </div>
+                
+                <div class="add-item-container" style="margin-bottom: 1rem;">
+                    <input type="text" id="newAvailableInput" placeholder="Add custom item name...">
+                    <button id="addAvailableBtn" class="primary-btn"><i class="ph ph-plus"></i> Add</button>
+                </div>
+
+                <div class="admin-section">
+                    <h4>Current Items:</h4>
+                    <ul class="item-list-admin" id="adminAvailableList">
+                        <li>Loading...</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- Raw JSON Editor -->
+            <section class="list-panel glass-panel" style="grid-column: 1 / -1;">
+                <div class="panel-header">
+                    <h2><i class="ph ph-code"></i> Raw JSON Database Editor</h2>
+                </div>
+                <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 1rem;">Warning: Be careful when editing the raw JSON data. Invalid JSON will not save.</p>
+                <textarea id="jsonEditor" class="json-editor"></textarea>
+                <div style="margin-top: 1rem; text-align: right;">
+                    <button id="saveJsonBtn" class="save-btn"><i class="ph ph-floppy-disk"></i> Save JSON to Database</button>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast hidden">
+        <i class="ph ph-info"></i>
+        <span id="toastMessage">Notification</span>
+    </div>
+
+    <script type="module" src="admin.js?v=1"></script>
+</body>
+</html>

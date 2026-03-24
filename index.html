@@ -22,8 +22,8 @@
                     <i class="ph-fill ph-google-logo"></i>
                     <h3>List & Inventory Manager</h3>
                 </div>
-                <a href="static.html" style="color: var(--text-secondary); text-decoration: none; font-weight: 500; font-size: 0.9rem; padding: 0.5rem 1rem; border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; transition: var(--transition);" onmouseover="this.style.background='rgba(255,255,255,0.1)'; this.style.color='var(--primary-light)';" onmouseout="this.style.background='transparent'; this.style.color='var(--text-secondary)';">View as static list</a>
-            </div>
+                    <a href="static.html" style="color: var(--text-secondary); text-decoration: none; font-weight: 500; font-size: 0.9rem; padding: 0.5rem 1rem; border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; transition: var(--transition);" onmouseover="this.style.background='rgba(255,255,255,0.1)'; this.style.color='var(--primary-light)';" onmouseout="this.style.background='transparent'; this.style.color='var(--text-secondary)';">View as static list</a>
+                </div>
         </header>
 
         <main class="lists-container">
@@ -31,7 +31,10 @@
             <section class="list-panel glass-panel">
                 <div class="panel-header">
                     <h2><i class="ph ph-package"></i> Grab and Go Inventory</h2>
-                    <span class="count-badge" id="inventoryCount">0</span>
+                    <div style="display: flex; align-items: center; gap: 0.5rem;">
+                        <button id="clearInventoryBtn" title="Set all quantities to 0" style="background: transparent; color: var(--danger); border: 1px solid rgba(255,100,100,0.2); padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.8rem; cursor: pointer; display: flex; align-items: center; gap: 0.25rem;"><i class="ph ph-arrow-counter-clockwise"></i> Clear</button>
+                        <span class="count-badge" id="inventoryCount">0</span>
+                    </div>
                 </div>
                 
                 <div class="search-box">
