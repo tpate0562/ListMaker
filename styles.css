@@ -255,6 +255,12 @@ body.no-animate .list-item {
     background: rgba(255, 255, 255, 0.1);
 }
 
+.list-item.selected-in-available {
+    border-color: rgba(16, 185, 129, 0.5);
+    background: rgba(16, 185, 129, 0.1);
+    box-shadow: 0 4px 15px rgba(16, 185, 129, 0.1);
+}
+
 .list-item .item-text {
     font-weight: 500;
     word-break: break-word;

@@ -213,28 +213,30 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // --- Render All Items (Middle panel) ---
         if (columnsToRender.includes('available')) {
-            // Exclude items that are currently in the Selected (Needed) list so they naturally "move"
+            // Do not exclude items that are currently in the Selected (Needed) list
             const filteredAll = state.available.filter(item => {
                 const matchesSearch = item.toLowerCase().includes(state.searchQuery.all);
-                const isSelected = state.selected.some(sel => sel.name === item);
-                return matchesSearch && !isSelected; // Hide from All Items if it's already Needed
+                return matchesSearch;
             });
 
             if (state.available.length === 0) {
                 allList.innerHTML = '<li class="empty-state">No items available. Add to inventory!</li>';
             } else if (filteredAll.length === 0) {
-                if (state.available.length === state.selected.length) {
-                    allList.innerHTML = '<li class="empty-state">All items are currently needed!</li>';
-                } else {
-                    allList.innerHTML = '<li class="empty-state">No items match your search.</li>';
-                }
+                allList.innerHTML = '<li class="empty-state">No items match your search.</li>';
             } else {
                 filteredAll.forEach((itemString) => {
+                    const isSelected = state.selected.some(sel => sel.name === itemString);
                     const li = document.createElement('li');
-                    li.className = 'list-item';
+                    li.className = isSelected ? 'list-item selected-in-available' : 'list-item';
 
                     // Action controls container
-                    const btnConfig = `
+                    const btnConfig = isSelected ? `
+                        <div class="item-controls" style="display: flex; align-items: center; gap: 0.25rem;">
+                            <i class="ph ph-pencil-simple action-icon edit-btn" style="color: var(--text-secondary);" title="Edit Item"></i>
+                            <i class="ph ph-trash action-icon delete-btn" style="color: var(--danger);" title="Remove Item"></i>
+                            <span class="action-text-btn remove-btn" title="Remove from Needed" style="color: var(--danger); background: rgba(239, 68, 68, 0.15);">Remove</span>
+                        </div>
+                    ` : `
                         <div class="item-controls" style="display: flex; align-items: center; gap: 0.25rem;">
                             <i class="ph ph-pencil-simple action-icon edit-btn" style="color: var(--text-secondary);" title="Edit Item"></i>
                             <i class="ph ph-trash action-icon delete-btn" style="color: var(--danger);" title="Remove Item"></i>
@@ -248,7 +250,12 @@ document.addEventListener('DOMContentLoaded', () => {
                     `;
 
                     // Event listeners
-                    li.querySelector('.move-btn').addEventListener('click', () => moveToSelected(itemString));
+                    if (isSelected) {
+                        const originalIndex = state.selected.findIndex(sel => sel.name === itemString);
+                        li.querySelector('.remove-btn').addEventListener('click', () => removeFromSelected(originalIndex));
+                    } else {
+                        li.querySelector('.move-btn').addEventListener('click', () => moveToSelected(itemString));
+                    }
                     li.querySelector('.edit-btn').addEventListener('click', () => handleEditAllItem(itemString));
                     li.querySelector('.delete-btn').addEventListener('click', () => handleDeleteAllItem(itemString));
 
