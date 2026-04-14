@@ -1,122 +1,95 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Apple Spice Inventory List Manager</title>
-    <!-- Modern typography -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <!-- SVG Icons via Phosphor Icons for a clean, premium look -->
-    <script src="https://unpkg.com/@phosphor-icons/web"></script>
-    <link rel="stylesheet" href="styles.css?v=2">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Casino Royale — Multiplayer American Roulette with friends">
+  <title>Casino Royale — Roulette</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><text y='56' font-size='56'>🎰</text></svg>">
 </head>
 <body>
-    <div class="background-animation"></div>
 
-    <div class="container">
-        <header class="glass-panel">
-            <div class="header-content" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
-                <div class="logo">
-                    <i class="ph-fill ph-google-logo"></i>
-                    <h3>List & Inventory Manager</h3>
-                </div>
-                    <a href="static.html" style="color: var(--text-secondary); text-decoration: none; font-weight: 500; font-size: 0.9rem; padding: 0.5rem 1rem; border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; transition: var(--transition);" onmouseover="this.style.background='rgba(255,255,255,0.1)'; this.style.color='var(--primary-light)';" onmouseout="this.style.background='transparent'; this.style.color='var(--text-secondary)';">View as static list</a>
-                </div>
-        </header>
-
-        <main class="lists-container">
-            <!-- Inventory Items Column -->
-            <section class="list-panel glass-panel">
-                <div class="panel-header">
-                    <h2><i class="ph ph-package"></i> Grab and Go Inventory</h2>
-                    <div style="display: flex; align-items: center; gap: 0.5rem;">
-                        <button id="clearInventoryBtn" title="Set all quantities to 0" style="background: transparent; color: var(--danger); border: 1px solid rgba(255,100,100,0.2); padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.8rem; cursor: pointer; display: flex; align-items: center; gap: 0.25rem;"><i class="ph ph-arrow-counter-clockwise"></i> Clear</button>
-                        <span class="count-badge" id="inventoryCount">0</span>
-                    </div>
-                </div>
-                
-                <div class="search-box">
-                    <i class="ph ph-magnifying-glass"></i>
-                    <input type="text" id="searchInput" placeholder="Search inventory...">
-                </div>
-                
-                <div class="list-wrapper" id="inventoryListWrapper">
-                    <ul id="inventoryList" class="item-list">
-                        <li class="empty-state">No items available. Add one below</li>
-                    </ul>
-                </div>
-
-            </section>
-
-            <!-- All Items Column -->
-            <section class="list-panel glass-panel">
-                <div class="panel-header">
-                    <h2><i class="ph ph-list-bullets"></i> Items Not Needed</h2>
-                    <span class="count-badge" id="availableCount">0</span>
-                </div>
-                
-                <div class="search-box">
-                    <i class="ph ph-magnifying-glass"></i>
-                    <input type="text" id="availableSearchInput" placeholder="Search all items...">
-                </div>
-                
-                <div class="list-wrapper" id="availableListWrapper">
-                    <ul id="availableList" class="item-list">
-                        <li class="empty-state">No items available. Add one to inventory to see it here!</li>
-                    </ul>
-                </div>
-
-                <div class="add-item-container">
-                    <input type="text" id="newAvailableItemInput" placeholder="Add custom item...">
-                    <button id="addAvailableItemBtn" class="primary-btn"><i class="ph ph-plus"></i> Add</button>
-                </div>
-            </section>
-
-            <!-- Selected Items Column -->
-            <section class="list-panel glass-panel highlighted">
-                <div class="panel-header">
-                    <h2><i class="ph ph-check-circle"></i> Items Needed</h2>
-                    <span class="count-badge primary" id="selectedCount">0</span>
-                </div>
-                
-                <div class="search-box">
-                    <i class="ph ph-magnifying-glass"></i>
-                    <input type="text" id="neededSearchInput" placeholder="Search needed items...">
-                </div>
-                
-                <div class="list-wrapper" id="selectedListWrapper">
-                    <ul id="selectedList" class="item-list">
-                        <li class="empty-state">No items selected yet.</li>
-                    </ul>
-                </div>
-                
-
-            </section>
-        </main>
+  <!-- ── Join Modal ──────────────────────────────────── -->
+  <div id="join-modal" class="modal-overlay">
+    <div class="modal">
+      <h2>🎰 Casino Royale</h2>
+      <p>Take a seat at the American Roulette table</p>
+      <input id="username-input" type="text" placeholder="Display Name" autocomplete="off">
+      <input id="playerid-input" type="text" placeholder="Player ID (your secret key)" autocomplete="off">
+      <button id="join-btn" class="btn-primary">Take a Seat</button>
+      <div id="join-error" class="error-msg"></div>
     </div>
+  </div>
 
+  <!-- ── Game Container ──────────────────────────────── -->
+  <div id="game-container" class="hidden">
+    <header>
+      <h1>Casino Royale <span>American Roulette</span></h1>
+      <div class="player-info">
+        <span class="player-name" id="player-name-display"></span>
+        <span class="player-balance" id="player-balance-display">$1000</span>
+      </div>
+    </header>
 
-
-    <!-- Quantity Prompt Modal (Numeric Keyboard) -->
-    <div id="qtyPromptModal" class="modal-overlay hidden">
-        <div class="modal-content glass-panel">
-            <h3 id="qtyPromptMessage">Set Quantity</h3>
-            <input type="text" inputmode="numeric" pattern="[0-9]*" id="qtyPromptInput" class="custom-prompt-input" autocomplete="off">
-            <div class="modal-actions">
-                <button id="qtyPromptCancel" class="btn-cancel">Cancel</button>
-                <button id="qtyPromptSubmit" class="btn-submit">Save</button>
-            </div>
+    <main>
+      <section class="game-area">
+        <!-- Wheel -->
+        <div class="wheel-section">
+          <canvas id="roulette-wheel"></canvas>
+          <div id="result-banner" class="result-banner hidden"></div>
         </div>
-    </div>
 
-    <!-- Toast Notification -->
-    <div id="toast" class="toast hidden">
-        <i class="ph ph-info"></i>
-        <span id="toastMessage">Notification</span>
-    </div>
+        <!-- Table -->
+        <div class="table-section">
+          <div id="roulette-table" class="roulette-table"></div>
+        </div>
+      </section>
 
-    <script type="module" src="app.js?v=2"></script>
+      <aside class="sidebar">
+        <!-- Chip Selector -->
+        <div class="sidebar-card" id="chip-card">
+          <h3>🪙 Select Chip</h3>
+          <div class="chip-selector">
+            <button class="chip" data-value="5">$5</button>
+            <button class="chip" data-value="10">$10</button>
+            <button class="chip selected" data-value="25">$25</button>
+            <button class="chip" data-value="50">$50</button>
+            <button class="chip" data-value="100">$100</button>
+            <button class="chip" data-value="500">$500</button>
+          </div>
+          <div class="custom-bet">
+            <input id="custom-amount" type="number" min="1" placeholder="Custom $">
+            <button id="set-custom-btn">Set</button>
+          </div>
+        </div>
+
+        <!-- Your Bets -->
+        <div class="sidebar-card">
+          <h3>🎯 Your Bets</h3>
+          <div id="your-bets-list" class="bets-list"></div>
+          <div id="your-bet-total" class="bet-total">Total: $0</div>
+        </div>
+
+        <!-- All Bets -->
+        <div class="sidebar-card">
+          <h3>📡 Table Bets (Live)</h3>
+          <div id="all-bets-list" class="bets-list"></div>
+        </div>
+
+        <!-- Game Status -->
+        <div class="sidebar-card">
+          <h3>🎲 Game Status</h3>
+          <div id="game-phase-display"></div>
+          <div id="history-strip" class="history-strip"></div>
+        </div>
+      </aside>
+    </main>
+  </div>
+
+  <!-- Toast Container -->
+  <div id="toast-container" class="toast-container"></div>
+
+  <script type="module" src="app.js"></script>
 </body>
 </html>

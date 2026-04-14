@@ -1,146 +1,108 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Database Admin - Apple Spice List Manager</title>
-    <!-- Modern typography -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <!-- SVG Icons via Phosphor Icons -->
-    <script src="https://unpkg.com/@phosphor-icons/web"></script>
-    <link rel="stylesheet" href="styles.css?v=2">
-    <style>
-        .admin-section {
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-            margin-bottom: 2rem;
-        }
-        
-        .json-editor {
-            width: 100%;
-            height: 300px;
-            font-family: monospace;
-            padding: 1rem;
-            border-radius: 8px;
-            border: 1px solid rgba(255,255,255,0.2);
-            background: rgba(0,0,0,0.3);
-            color: #fff;
-            resize: vertical;
-        }
-
-        .save-btn {
-            background: var(--primary);
-            color: white;
-            border: none;
-            padding: 0.75rem 1.5rem;
-            border-radius: 6px;
-            font-family: 'Outfit', sans-serif;
-            font-weight: 600;
-            cursor: pointer;
-            transition: var(--transition);
-        }
-
-        .save-btn:hover {
-            background: var(--primary-dark);
-        }
-
-        .item-list-admin {
-            max-height: 250px;
-            overflow-y: auto;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 8px;
-            padding: 0.5rem;
-        }
-
-        .item-list-admin li {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0.5rem;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-        }
-        
-        .item-list-admin li:last-child {
-            border-bottom: none;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Casino Royale — Admin Panel for American Roulette">
+  <title>Casino Royale — Admin</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><text y='56' font-size='56'>👑</text></svg>">
 </head>
 <body>
-    <div class="background-animation"></div>
 
-    <div class="container">
-        <header class="glass-panel">
-            <div class="header-content" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
-                <div class="logo">
-                    <i class="ph-fill ph-database"></i>
-                    <h3>Database Admin</h3>
-                </div>
-                <a href="index.html" style="color: var(--text-secondary); text-decoration: none; font-weight: 500; font-size: 0.9rem; padding: 0.5rem 1rem; border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; transition: var(--transition);" onmouseover="this.style.background='rgba(255,255,255,0.1)'; this.style.color='var(--primary-light)';" onmouseout="this.style.background='transparent'; this.style.color='var(--text-secondary)';">Back to App</a>
-            </div>
-        </header>
-
-        <main class="lists-container" style="grid-template-columns: 1fr 1fr;">
-            <!-- Grab & Go Inventory Editor -->
-            <section class="list-panel glass-panel">
-                <div class="panel-header">
-                    <h2><i class="ph ph-package"></i> Edit Grab & Go (Inventory)</h2>
-                </div>
-                
-                <div class="add-item-container" style="margin-bottom: 1rem;">
-                    <input type="text" id="newInventoryInput" placeholder="Add custom item name...">
-                    <button id="addInventoryBtn" class="primary-btn"><i class="ph ph-plus"></i> Add</button>
-                </div>
-
-                <div class="admin-section">
-                    <h4>Current Items:</h4>
-                    <ul class="item-list-admin" id="adminInventoryList">
-                        <li>Loading...</li>
-                    </ul>
-                </div>
-            </section>
-
-            <!-- Items Not Needed Editor -->
-            <section class="list-panel glass-panel">
-                <div class="panel-header">
-                    <h2><i class="ph ph-list-bullets"></i> Edit Items Not Needed (Available)</h2>
-                </div>
-                
-                <div class="add-item-container" style="margin-bottom: 1rem;">
-                    <input type="text" id="newAvailableInput" placeholder="Add custom item name...">
-                    <button id="addAvailableBtn" class="primary-btn"><i class="ph ph-plus"></i> Add</button>
-                </div>
-
-                <div class="admin-section">
-                    <h4>Current Items:</h4>
-                    <ul class="item-list-admin" id="adminAvailableList">
-                        <li>Loading...</li>
-                    </ul>
-                </div>
-            </section>
-
-            <!-- Raw JSON Editor -->
-            <section class="list-panel glass-panel" style="grid-column: 1 / -1;">
-                <div class="panel-header">
-                    <h2><i class="ph ph-code"></i> Raw JSON Database Editor</h2>
-                </div>
-                <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 1rem;">Warning: Be careful when editing the raw JSON data. Invalid JSON will not save.</p>
-                <textarea id="jsonEditor" class="json-editor"></textarea>
-                <div style="margin-top: 1rem; text-align: right;">
-                    <button id="saveJsonBtn" class="save-btn"><i class="ph ph-floppy-disk"></i> Save JSON to Database</button>
-                </div>
-            </section>
-        </main>
+  <!-- ── Join Modal ──────────────────────────────────── -->
+  <div id="join-modal" class="modal-overlay">
+    <div class="modal">
+      <h2>👑 Admin Panel</h2>
+      <p>Log in to manage the roulette table</p>
+      <input id="username-input" type="text" placeholder="Display Name" autocomplete="off">
+      <input id="playerid-input" type="text" placeholder="Player ID (your secret key)" autocomplete="off">
+      <button id="join-btn" class="btn-primary">Enter as Admin</button>
+      <div id="join-error" class="error-msg"></div>
     </div>
+  </div>
 
-    <!-- Toast Notification -->
-    <div id="toast" class="toast hidden">
-        <i class="ph ph-info"></i>
-        <span id="toastMessage">Notification</span>
-    </div>
+  <!-- ── Game Container ──────────────────────────────── -->
+  <div id="game-container" class="hidden">
+    <header>
+      <h1>Casino Royale <span>Admin Console</span></h1>
+      <div class="player-info">
+        <span class="player-name" id="player-name-display"></span>
+        <span class="player-balance" id="player-balance-display">$1000</span>
+      </div>
+    </header>
 
-    <script type="module" src="admin.js?v=1"></script>
+    <main>
+      <section class="game-area">
+        <!-- Wheel -->
+        <div class="wheel-section">
+          <canvas id="roulette-wheel"></canvas>
+          <div id="result-banner" class="result-banner hidden"></div>
+        </div>
+
+        <!-- Table -->
+        <div class="table-section">
+          <div id="roulette-table" class="roulette-table"></div>
+        </div>
+      </section>
+
+      <aside class="sidebar">
+        <!-- Admin Controls -->
+        <div class="sidebar-card">
+          <h3>👑 Admin Controls</h3>
+          <button id="spin-btn" class="spin-button">🎰 SPIN</button>
+          <button id="new-round-btn" class="new-round-btn">🔄 New Round</button>
+        </div>
+
+        <!-- Chip Selector -->
+        <div class="sidebar-card" id="chip-card">
+          <h3>🪙 Select Chip</h3>
+          <div class="chip-selector">
+            <button class="chip" data-value="5">$5</button>
+            <button class="chip" data-value="10">$10</button>
+            <button class="chip selected" data-value="25">$25</button>
+            <button class="chip" data-value="50">$50</button>
+            <button class="chip" data-value="100">$100</button>
+            <button class="chip" data-value="500">$500</button>
+          </div>
+          <div class="custom-bet">
+            <input id="custom-amount" type="number" min="1" placeholder="Custom $">
+            <button id="set-custom-btn">Set</button>
+          </div>
+        </div>
+
+        <!-- Your Bets -->
+        <div class="sidebar-card">
+          <h3>🎯 Your Bets</h3>
+          <div id="your-bets-list" class="bets-list"></div>
+          <div id="your-bet-total" class="bet-total">Total: $0</div>
+        </div>
+
+        <!-- All Bets -->
+        <div class="sidebar-card">
+          <h3>📡 Table Bets (Live)</h3>
+          <div id="all-bets-list" class="bets-list"></div>
+        </div>
+
+        <!-- Game Status -->
+        <div class="sidebar-card">
+          <h3>🎲 Game Status</h3>
+          <div id="game-phase-display"></div>
+          <div id="history-strip" class="history-strip"></div>
+        </div>
+
+        <!-- Player Management -->
+        <div class="sidebar-card">
+          <h3>👥 Player Balances</h3>
+          <div id="admin-players-list" class="player-list-admin"></div>
+        </div>
+      </aside>
+    </main>
+  </div>
+
+  <!-- Toast Container -->
+  <div id="toast-container" class="toast-container"></div>
+
+  <script type="module" src="admin.js"></script>
 </body>
 </html>
